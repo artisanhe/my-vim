@@ -287,3 +287,8 @@ let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
 "Pydiction configure
 "-----------------------------------------------------------------------------
 let g:pydiction_location = '/root/.vim/bundle/pydiction/complete-dict'
+
+"-----------------------------------------------------------------------------
+"delimitMate configure
+"-----------------------------------------------------------------------------
+let delimitMate_expand_cr = 1
