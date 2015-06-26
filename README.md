@@ -1,6 +1,6 @@
 ## Setup
 
-    git clone https://github.com/hawkbee/vundle.git ~/.vim
+    git clone git@github.com:richardhe2011/my-vim.git ~/.vim
     cd ~/.vim
     ./setup.sh
 
