@@ -1,0 +1,17 @@
+[user]
+	email = hawkbee@gmail.com
+	name = hequn
+[color]
+	ui = true
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+	dt = difftool
+[push]
+	default = simple
+[diff]
+	renameLimit = 100000
+[core]
+	editor = vim
