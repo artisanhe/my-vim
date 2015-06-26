@@ -196,6 +196,10 @@ map <C-\> :cs find c <C-R>=expand("<cword>")<CR><CR>
 imap <C-e> <esc>$i<right>
 " " map CTRL-A to beginning-of-line (insert mode)
 imap <C-a> <esc>0i
+map <S-u> <C-u>
+map <S-d> <C-d>
+map <S-B> <C-B>
+map <S-F> <C-F>
 
 " Disable completion previews with function prototypes, etc.
 set completeopt=menu
