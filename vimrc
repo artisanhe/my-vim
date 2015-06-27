@@ -136,7 +136,8 @@ set laststatus=2
 
 "nerdtree settings
 let g:NERDTreeMouseMode = 2
-let g:NERDTreeWinSize = 40
+let g:NERDTreeWinSize = 25
+let g:tagbar_width = 25
 
 "explorer mappings
 nnoremap <f1> :BufExplorer<cr>
