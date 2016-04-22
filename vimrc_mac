@@ -1,0 +1,256 @@
+"Use Vim settings, rather then Vi settings (much better!).
+"This must be first, because it changes other options as a side effect.
+set nocompatible
+filetype off
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+" 包管理器
+Bundle 'gmarik/vundle'
+" 目录树导航
+Bundle 'scrooloose/nerdtree' 
+" 快速批量注释
+Bundle 'scrooloose/nerdcommenter' 
+" 语法检测
+Bundle 'scrooloose/syntastic'
+" 标签(函数、变量)导航
+Bundle 'majutsushi/tagbar'
+" 输入引号、括号时自动补全
+Bundle 'Raimondi/delimitMate' 
+" molokai主题
+Bundle 'tomasr/molokai'
+Bundle 'bling/vim-airline'
+Bundle 'bufexplorer.zip'
+Bundle 'kien/ctrlp.vim'
+" 补全神器
+Bundle 'Valloric/YouCompleteMe' 
+Bundle 'vim-scripts/grep.vim' 
+Bundle 'dgryski/vim-godef'
+Bundle 'altercation/vim-colors-solarized' 
+
+
+set showcmd     "show incomplete cmds down the bottom
+set showmode    "show current mode down the bottom
+set number      "show line numbers
+
+"display tabs and trailing spaces
+"set list
+set listchars=tab:>-,trail:-,nbsp:.,eol:$
+
+set incsearch   "find the next match as we type the search
+set hlsearch    "hilight searches by default
+
+set wrap        "dont wrap lines
+set linebreak   "wrap lines at convenient points
+
+if v:version >= 703
+    "undo settings
+    set undodir=~/.vim/undofiles
+    set undofile
+
+    set colorcolumn=+1 "mark the ideal max text width
+endif
+
+"default indent settings
+set shiftwidth=4
+set softtabstop=4
+set tabstop=4
+set autoindent
+set copyindent " copy the previous indentation on autoindenting
+
+" disable sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
+"folding settings
+set foldmethod=indent   "fold based on indent
+set foldnestmax=3       "deepest fold is 3 levels
+set nofoldenable        "dont fold by default
+
+set wildmode=list:longest   "make cmdline tab completion similar to bash
+set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
+set wildignore=*.o,*.obj,*~ "stuff to ignore when tab completing
+
+"load ftplugins and indent files
+filetype plugin on
+filetype indent on
+
+"turn on syntax highlighting
+syntax on
+
+"tell the term has 256 colors
+set t_Co=256
+
+"hide buffers when not displayed
+set hidden
+set nobackup " no *~ backup files
+
+syntax enable
+set background=dark
+colorscheme solarized
+"colorscheme molokai
+"colorscheme desert
+
+" hilight function name
+autocmd BufNewFile,BufRead * :syntax match cfunctions "\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
+autocmd BufNewFile,BufRead * :syntax match cfunctions "\<[a-zA-Z_][a-zA-Z_0-9]*\>\s*("me=e-1
+highlight cfunctions ctermfg=81
+highlight Type ctermfg=120 cterm=none
+highlight Structure ctermfg=120 cterm=none
+highlight Macro ctermfg=161 cterm=bold
+highlight PreCondit ctermfg=161 cterm=bold
+"highlight CursorLine cterm=underline
+"highlight CursorLine cterm=bold
+set cursorline
+
+
+"------------------------------------------------------------------------------
+" ENCODING SETTINGS
+"---------------------------------------------------------------------------
+set encoding=utf-8
+set termencoding=utf-8
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,cp936,gbk,gb18030,big5,latin1
+
+autocmd FileType ruby,javascript,css,html
+      \	set expandtab | set softtabstop=2 | set shiftwidth=2
+autocmd FileType c,cpp,python,go,sh set expandtab
+
+"statusline setup
+set laststatus=2
+
+"nerdtree settings
+let g:NERDTreeMouseMode = 2
+let g:NERDTreeWinSize = 25
+let g:tagbar_width = 25
+
+"explorer mappings
+nnoremap <f1> :BufExplorer<cr>
+nnoremap <f2> :NERDTreeToggle<cr>
+nnoremap <f3> :TagbarToggle<cr>
+nnoremap <silent> <f5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<cr>
+nnoremap <f4> :Rgrep<CR>
+
+" set focus to TagBar when opening it
+let g:tagbar_autofocus = 1
+
+"source project specific config files
+runtime! projects/**/*.vim
+
+"make <c-l> clear the highlight as well as redraw
+nnoremap <C-L> :nohls<CR><C-L>
+inoremap <C-L> <C-O>:nohls<CR>
+
+"map Q to something useful
+noremap Q gq
+
+"make Y consistent with C and D
+nnoremap Y y$
+
+"jump to last cursor position when opening a file
+"dont do it when writing a commit log entry
+autocmd BufReadPost * call SetCursorPosition()
+function! SetCursorPosition()
+    if &filetype !~ 'svn\|commit\c'
+        if line("'\"") > 0 && line("'\"") <= line("$")
+            exe "normal! g`\""
+            normal! zz
+        endif
+    end
+endfunction
+
+"spell check when writing commit logs
+autocmd filetype svn,*commit* setlocal spell
+
+
+"map <C-\> :cs find c <C-R>=expand("<cword>")<CR><CR>
+" map CTRL-E to end-of-line (insert mode)
+imap <C-e> <esc>$i<right>
+" " map CTRL-A to beginning-of-line (insert mode)
+imap <C-a> <esc>0i
+
+
+"VimOrganizer
+autocmd! BufRead,BufWrite,BufWritePost,BufNewFile *.org
+autocmd  BufEnter *.org call org#SetOrgFileType() | set wrap
+let g:SuperTabDefaultCompletionType = "context"
+
+"-----------------------------------------------------------------------------
+"UltiSnips configure
+"------"-----------------------------------------------------------------------
+
+"-----------------------------------------------------------------------------
+"delimitMate configure
+"-----------------------------------------------------------------------------
+let delimitMate_expand_cr = 1
+
+"_____________________________________________________________________________
+"YouCompleteMe configure
+"_____________________________________________________________________________
+" 自动补全配置
+set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
+"开启基于tag的补全，可以在这之后添加需要的标签路径  
+let g:ycm_collect_identifiers_from_tags_files=1
+"禁止缓存匹配项,每次都重新生成匹配项
+let g:ycm_cache_omnifunc=0
+"开启语义补全
+let g:ycm_seed_identifiers_with_syntax=1	
+"在注释输入中也能补全
+let g:ycm_complete_in_comments = 1
+"在字符串输入中也能补全
+let g:ycm_complete_in_strings = 1
+nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+let g:ycm_filetype_blacklist = {
+      \ 'tagbar' : 1,
+      \ 'qf' : 1,
+      \ 'notes' : 1,
+      \ 'markdown' : 1,
+      \ 'unite' : 1,
+      \ 'text' : 1,
+      \ 'vimwiki' : 1,
+      \ 'gitcommit' : 1,
+      \}
+
+"_____________________________________________________________________________
+"Syntastic configure
+"_____________________________________________________________________________
+"对c、cpp、go、golang文件关闭自动语法错误检测
+let g:syntastic_mode_map = { 'passive_filetypes': ['c', 'cpp', 'go', 'golang'] }
+
+"will reuse the current window, and
+let g:godef_split=0
+
+
+"tagbar
+let g:tagbar_type_go = {
+	\ 'ctagstype' : 'go',
+	\ 'kinds'     : [
+		\ 'p:package',
+		\ 'i:imports:1',
+		\ 'c:constants',
+		\ 'v:variables',
+		\ 't:types',
+		\ 'n:interfaces',
+		\ 'w:fields',
+		\ 'e:embedded',
+		\ 'm:methods',
+		\ 'r:constructor',
+		\ 'f:functions'
+	\ ],
+	\ 'sro' : '.',
+	\ 'kind2scope' : {
+		\ 't' : 'ctype',
+		\ 'n' : 'ntype'
+	\ },
+	\ 'scope2kind' : {
+		\ 'ctype' : 't',
+		\ 'ntype' : 'n'
+	\ },
+	\ 'ctagsbin'  : 'gotags',
+	\ 'ctagsargs' : '-sort -silent'
+	\ }
+
