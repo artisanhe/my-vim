@@ -134,6 +134,9 @@ nnoremap <f3> :TagbarToggle<cr>
 nnoremap <silent> <f5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<cr>
 nnoremap <f4> :Rgrep<CR>
 
+" 语法检测绑定到f5
+nnoremap <f5> :SyntasticCheck<cr>
+
 " set focus to TagBar when opening it
 let g:tagbar_autofocus = 1
 
@@ -220,6 +223,7 @@ let g:ycm_filetype_blacklist = {
 "_____________________________________________________________________________
 "对c、cpp、go、golang文件关闭自动语法错误检测
 let g:syntastic_mode_map = { 'passive_filetypes': ['c', 'cpp', 'go', 'golang'] }
+"let g:syntastic_mode_map = { 'passive_filetypes': ['c', 'cpp'] }
 
 "will reuse the current window, and
 let g:godef_split=0

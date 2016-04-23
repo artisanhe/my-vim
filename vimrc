@@ -3,32 +3,46 @@
 set nocompatible
 filetype off
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+if has('win32')
+    set rtp+=$VIM/vimfiles/bundle/vundle/
+    call vundle#rc('$VIM/vimfiles/bundle/')
+else
+    set rtp+=~/.vim/bundle/vundle/
+    call vundle#rc()
+endif
 
-" 包管理器
+" let Vundle manage Vundle
+" required!
 Bundle 'gmarik/vundle'
-" 目录树导航
-Bundle 'scrooloose/nerdtree' 
-" 快速批量注释
-Bundle 'scrooloose/nerdcommenter' 
-" 语法检测
+Bundle 'scrooloose/nerdtree'
+Bundle 'scrooloose/nerdcommenter'
 Bundle 'scrooloose/syntastic'
-" 标签(函数、变量)导航
 Bundle 'majutsushi/tagbar'
-" 输入引号、括号时自动补全
-Bundle 'Raimondi/delimitMate' 
-" molokai主题
+Bundle 'Raimondi/delimitMate'
+Bundle 'ervandew/supertab'
 Bundle 'tomasr/molokai'
+Bundle 'fatih/vim-go'
+Bundle 'Shougo/neocomplete.vim'
+Bundle 'OmniCppComplete'
 Bundle 'bling/vim-airline'
 Bundle 'bufexplorer.zip'
 Bundle 'kien/ctrlp.vim'
-" 补全神器
-Bundle 'Valloric/YouCompleteMe' 
-Bundle 'vim-scripts/grep.vim' 
-Bundle 'dgryski/vim-godef'
-Bundle 'altercation/vim-colors-solarized' 
+Bundle 'rkulla/pydiction'
+"Bundle 'pyflakes/pyflakes'
+"Bundle 'klen/python-mode'
+"Bundle 'SirVer/ultisnips'
+"Bundle 'honza/vim-snippets'
+"Bundle 'vim-scripts/UltiSnips'
+"Bundle 'pangloss/vim-javascript'
+"Bundle 'wookiehangover/jshint.vim'
+"Bundle 'mattn/emmet-vim'
+"Bundle 'altercation/vim-colors-solarized'
 
+"allow backspacing over everything in insert mode
+set backspace=indent,eol,start
+
+"store lots of :cmdline history
+set history=1000
 
 set showcmd     "show incomplete cmds down the bottom
 set showmode    "show current mode down the bottom
@@ -87,12 +101,10 @@ set t_Co=256
 "hide buffers when not displayed
 set hidden
 set nobackup " no *~ backup files
-
-syntax enable
 set background=dark
-colorscheme solarized
-"colorscheme molokai
-"colorscheme desert
+
+"colorscheme for molokai
+colorscheme molokai
 
 " hilight function name
 autocmd BufNewFile,BufRead * :syntax match cfunctions "\<[a-zA-Z_][a-zA-Z_0-9]*\>[^()]*)("me=e-2
@@ -102,8 +114,8 @@ highlight Type ctermfg=120 cterm=none
 highlight Structure ctermfg=120 cterm=none
 highlight Macro ctermfg=161 cterm=bold
 highlight PreCondit ctermfg=161 cterm=bold
-"highlight CursorLine cterm=underline
-"highlight CursorLine cterm=bold
+highlight CursorLine cterm=underline
+highlight CursorLine cterm=bold
 set cursorline
 
 
@@ -132,10 +144,6 @@ nnoremap <f1> :BufExplorer<cr>
 nnoremap <f2> :NERDTreeToggle<cr>
 nnoremap <f3> :TagbarToggle<cr>
 nnoremap <silent> <f5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<cr>
-nnoremap <f4> :Rgrep<CR>
-
-" 语法检测绑定到f5
-nnoremap <f5> :SyntasticCheck<cr>
 
 " set focus to TagBar when opening it
 let g:tagbar_autofocus = 1
@@ -168,13 +176,34 @@ endfunction
 "spell check when writing commit logs
 autocmd filetype svn,*commit* setlocal spell
 
+if has("cscope")
+    set csprg=cscope
+    set csto=0
+    set cst
+    set nocsverb
+    set cscopequickfix=s-,c-,d-,i-,t-,e-
+    " add any database in current directory
+    if filereadable("cscope.out")
+        cs add cscope.out
+    " else add database pointed to by environment
+    elseif $CSCOPE_DB != ""
+        cs add $CSCOPE_DB
+    endif
+    set csverb
+endif
 
-"map <C-\> :cs find c <C-R>=expand("<cword>")<CR><CR>
+map <C-\> :cs find c <C-R>=expand("<cword>")<CR><CR>
 " map CTRL-E to end-of-line (insert mode)
 imap <C-e> <esc>$i<right>
 " " map CTRL-A to beginning-of-line (insert mode)
 imap <C-a> <esc>0i
+map <S-u> <C-u>
+map <S-d> <C-d>
+map <S-B> <C-B>
+map <S-F> <C-F>
 
+" Disable completion previews with function prototypes, etc.
+set completeopt=menu
 
 "VimOrganizer
 autocmd! BufRead,BufWrite,BufWritePost,BufNewFile *.org
@@ -182,79 +211,85 @@ autocmd  BufEnter *.org call org#SetOrgFileType() | set wrap
 let g:SuperTabDefaultCompletionType = "context"
 
 "-----------------------------------------------------------------------------
+"Neocomplete configure
+"-----------------------------------------------------------------------------
+"Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
+"" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplete.
+let g:neocomplete#enable_at_startup = 1
+" " Use smartcase.
+let g:neocomplete#enable_smart_case = 1
+" " Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+let g:neocomplete#lock_buffer_name_pattern = '\*ku\*'
+
+" Define dictionary.
+let g:neocomplete#sources#dictionary#dictionaries = {
+     \ 'default' : '',
+         \ 'vimshell' : $HOME.'/.vimshell_hist',
+             \ 'scheme' : $HOME.'/.gosh_completions'
+                     \ }
+
+" Define keyword.
+if !exists('g:neocomplete#keyword_patterns')
+	let g:neocomplete#keyword_patterns = {}
+endif
+let g:neocomplete#keyword_patterns['default'] = '\h\w*'
+
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplete#undo_completion()
+inoremap <expr><C-l>     neocomplete#complete_common_string()
+
+" Recommended key-mappings.
+" " <CR>: close popup and save indent.
+"inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+"function! s:my_cr_function()
+	"return neocomplete#close_popup() . "\<CR>"
+	  "" For no inserting <CR> key.
+	  ""return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+"endfunction
+
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplete#close_popup()
+inoremap <expr><C-e>  neocomplete#cancel_popup()"
+
+" Enable omni completion.
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+" Enable heavy omni completion.
+if !exists('g:neocomplete#sources#omni#input_patterns')
+	let g:neocomplete#sources#omni#input_patterns = {}
+endif
+
+let g:neocomplete#sources#omni#input_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+
+"-----------------------------------------------------------------------------
 "UltiSnips configure
-"------"-----------------------------------------------------------------------
+"-----------------------------------------------------------------------------
+" Trigger configuration. Do not use <tab> if you use  https://github.com/Valloric/YouCompleteMe.
+"let g:UltiSnipsExpandTrigger="<tab>"
+"let g:UltiSnipsJumpForwardTrigger="<c-b>"
+"let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+"" If you want :UltiSnipsEdit to split your window.
+"let g:UltiSnipsEditSplit="vertical"
+"
+
+"-----------------------------------------------------------------------------
+"Pydiction configure
+"-----------------------------------------------------------------------------
+let g:pydiction_location = '/root/.vim/bundle/pydiction/complete-dict'
 
 "-----------------------------------------------------------------------------
 "delimitMate configure
 "-----------------------------------------------------------------------------
 let delimitMate_expand_cr = 1
-
-"_____________________________________________________________________________
-"YouCompleteMe configure
-"_____________________________________________________________________________
-" 自动补全配置
-set completeopt=longest,menu	"让Vim的补全菜单行为与一般IDE一致(参考VimTip1228)
-"开启基于tag的补全，可以在这之后添加需要的标签路径  
-let g:ycm_collect_identifiers_from_tags_files=1
-"禁止缓存匹配项,每次都重新生成匹配项
-let g:ycm_cache_omnifunc=0
-"开启语义补全
-let g:ycm_seed_identifiers_with_syntax=1	
-"在注释输入中也能补全
-let g:ycm_complete_in_comments = 1
-"在字符串输入中也能补全
-let g:ycm_complete_in_strings = 1
-nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-let g:ycm_filetype_blacklist = {
-      \ 'tagbar' : 1,
-      \ 'qf' : 1,
-      \ 'notes' : 1,
-      \ 'markdown' : 1,
-      \ 'unite' : 1,
-      \ 'text' : 1,
-      \ 'vimwiki' : 1,
-      \ 'gitcommit' : 1,
-      \}
-
-"_____________________________________________________________________________
-"Syntastic configure
-"_____________________________________________________________________________
-"对c、cpp、go、golang文件关闭自动语法错误检测
-let g:syntastic_mode_map = { 'passive_filetypes': ['c', 'cpp', 'go', 'golang'] }
-"let g:syntastic_mode_map = { 'passive_filetypes': ['c', 'cpp'] }
-
-"will reuse the current window, and
-let g:godef_split=0
-
-
-"tagbar
-let g:tagbar_type_go = {
-	\ 'ctagstype' : 'go',
-	\ 'kinds'     : [
-		\ 'p:package',
-		\ 'i:imports:1',
-		\ 'c:constants',
-		\ 'v:variables',
-		\ 't:types',
-		\ 'n:interfaces',
-		\ 'w:fields',
-		\ 'e:embedded',
-		\ 'm:methods',
-		\ 'r:constructor',
-		\ 'f:functions'
-	\ ],
-	\ 'sro' : '.',
-	\ 'kind2scope' : {
-		\ 't' : 'ctype',
-		\ 'n' : 'ntype'
-	\ },
-	\ 'scope2kind' : {
-		\ 'ctype' : 't',
-		\ 'ntype' : 'n'
-	\ },
-	\ 'ctagsbin'  : 'gotags',
-	\ 'ctagsargs' : '-sort -silent'
-	\ }
-
